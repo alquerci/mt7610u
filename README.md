@@ -14,11 +14,11 @@ For compiling type
 `make`  
 in source dir  
 
-To install the firmware files  
-`sudo make installfw`
+To install the driver and its firmware files
+`sudo make install`
 
-For install the driver use  
-`sudo insmod mt7610u.ko`  
+For uninstall the driver use
+`sudo make uninstall`
 
 To Unload driver you may need to disconnect the device  
 

@@ -361,6 +361,8 @@ $(MOD_NAME)-objs += \
 		common/frq_cal.o
 endif
 
+FIRMWARE_BIN = mt7610u.bin mt7650u.bin
+
 EXTRA_CFLAGS += -Wno-unused-label
 EXTRA_CFLAGS += -Wno-unused
 
@@ -368,7 +370,9 @@ MAKE = make
 
 ifeq ($(PLATFORM),PC)
 # Linux 2.6
-KSRC = /lib/modules/$(shell uname -r)/build
+KVER = $(shell uname -r)
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+KSRC = /lib/modules/$(KVER)/build
 CROSS_COMPILE =
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/)
@@ -401,12 +405,22 @@ clean:
 	rm -f modules.order
 
 installfw:
-	cp -n firmware/* /lib/firmware
+	cd firmware && install -p -m 644 $(FIRMWARE_BIN) /lib/firmware
+
+install: installfw
+	install -p -m 644 $(MOD_NAME).ko $(MODDESTDIR)
+	/sbin/depmod -a ${KVER}
+
+uninstall:
+	rm -f $(MODDESTDIR)/$(MOD_NAME).ko
+	cd /lib/firmware && rm -f $(FIRMWARE_BIN)
+	/sbin/depmod -a ${KVER}
 
 help:
 	@echo "options :"
 	@echo "modules		build this module"
 	@echo "installfw	install firmware file"
+	@echo "install		install this driver"
 	@echo "clean		clean"
 	@echo "help		this help text"
 
